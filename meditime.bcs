@@ -3,6 +3,7 @@ SCRIPT_DESC ="show meditation time";
 SCRIPT_OFF = false;
 import System.Time;
 import java.util.*; 
+import java.lang.Math;
 
 String kata="no";
 String oldkata="no";
@@ -10,6 +11,7 @@ long lastKataTime=System.currentTimeMillis();
 long startTime=System.currentTimeMillis();
 long lastMedi=System.currentTimeMillis();
 boolean setReport=false;
+int total=0;
 
 ArrayList no = new ArrayList();
 ArrayList shodan = new ArrayList();
@@ -29,7 +31,8 @@ ArrayList unsuCd = new ArrayList();
 ArrayList meikyoCd = new ArrayList();
 ArrayList sochinCd = new ArrayList();
 ArrayList wankanCd = new ArrayList();
-ArrayList bassaiDaiCD= new ArrayList();
+ArrayList bassaiDaiCd= new ArrayList();
+
 
 
 
@@ -39,6 +42,7 @@ void bootup(){
 }
 
 void run(){
+	//functionality for when the command "$medi" is used
 	
 	if(argument !=null){
 		switch(argument){
@@ -56,7 +60,7 @@ void run(){
 				printStats();
 			
 			default:
-				clientGUI.printText("general","Options: report.\n");
+				clientGUI.printText("general","Options: $medi r shows stats report, $medi pr turns party reporter on.\n");
 
 		
 		}
@@ -69,7 +73,7 @@ void run(){
 
 void triggers(){
 
-
+    //katamessages
 	triggerManager.newTrigger("kataHeianShodan",
 	"^You perform the peaceful Heian Shodan kata.$",
 	"$"+SCRIPT_NAME+".setKata Heian Shodan",
@@ -117,11 +121,7 @@ void triggers(){
 	"$"+SCRIPT_NAME+".setKata Bassai-Dai",
 	false, true, false,
 	new Color[]{new Color(255, 255, 255)}, Font.PLAIN);
-
-
-
-
-
+	//katamessages end
 
 
 	triggerManager.newTrigger("mediStart",
@@ -156,17 +156,23 @@ void setKata(){
 }
 
 void armKata(){
+	//Triggers when the message from kata-boosted skill-use comes and saves the time for the medStart function.
 	lastKataTime=System.currentTimeMillis();
 }
 
 void medStart(){
+	//Triggers when the meditation start message comes
 	startTime=System.currentTimeMillis();
 	if(System.currentTimeMillis()-lastKataTime>15000){
+		//checks if the last kata-boosted skill-use was more than 15 seconds ago, which would mean the kata was used for some other skill and not for meditation.
 		kata="no";
 	}
 }
 
+
+
 void medEnd(){
+	//Triggers when the meditation ends.
 	double totaltime=(System.currentTimeMillis()-startTime)/1000.0;
 	lastMedi=System.currentTimeMillis();
 	
@@ -174,99 +180,51 @@ void medEnd(){
 			
 			case "no":
 				no.add(totaltime);
-				double average;
-				for (int i=0; i<no.size();i++){
-					average+=no.get(i);
-				}
-				average=average/no.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,no,0);
 				break;
 			
 			case "Heian Shodan":
 				shodan.add(totaltime);
-				double average;
-				for (int i=0; i<shodan.size();i++){
-					average+=shodan.get(i);
-				}
-				average=average/shodan.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,shodan,0);
 				
 				break;
 				
 			case "Heian Nidan":
 				nidan.add(totaltime);
-				double average;
-				for (int i=0; i<nidan.size();i++){
-					average+=nidan.get(i);
-				}
-				average=average/nidan.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,nidan,0);
 				break;				
 				
 			case "Heian Sandan":
 				sandan.add(totaltime);
-				double average;
-				for (int i=0; i<sandan.size();i++){
-					average+=sandan.get(i);
-				}
-				average=average/sandan.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,sandan,0);
 				break;	
 				
 			case "Unsu":
 				unsu.add(totaltime);
-				double average;
-				for (int i=0; i<unsu.size();i++){
-					average+=unsu.get(i);
-				}
-				average=average/unsu.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,unsu,0);
 				break;	
 
 			case "Meikyo":
 				meikyo.add(totaltime);
-				double average;
-				for (int i=0; i<meikyo.size();i++){
-					average+=meikyo.get(i);
-				}
-				average=average/meikyo.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,meikyo,0);
 				break;	
 
 			case "Sochin":
 				sochin.add(totaltime);
-				double average;
-				for (int i=0; i<sochin.size();i++){
-					average+=sochin.get(i);
-				}
-				average=average/sochin.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,sochin,0);
 				break;	
 
 			case "Wankan":
 				wankan.add(totaltime);
-				double average;
-				for (int i=0; i<wankan.size();i++){
-					average+=wankan.get(i);
-				}
-				average=average/wankan.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,wankan,0);
 				break;	
 				
 			case "Bassai-Dai":
 				bassaiDai.add(totaltime);
-				double average;
-				for (int i=0; i<bassaiDai.size();i++){
-					average+=bassaiDai.get(i);
-				}
-				average=average/bassaiDai.size();
-				clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+" kata. Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,bassaiDai,0);
 				break;
 		}
-	
-	
-	
-	//clientGUI.printText("general","Meditime: "+totaltime+" seconds. Kata: "+kata+"\n","FFFFFF");
+
 	if(setReport){
 		clientGUI.doCommand("@p report Meditation time "+totaltime+" seconds, used "+kata+" kata.");
 	}
@@ -275,254 +233,114 @@ void medEnd(){
 }
 
 
-
 void mediAgain(){
+	//Triggers when you can meditate again.
 	double totaltime=(System.currentTimeMillis()-lastMedi)/1000.0;
 	
 			switch(oldkata){
 			
 			case "no":
 				noCd.add(totaltime);
-				double average;
-				for (int i=0; i<noCd.size();i++){
-					average+=noCd.get(i);
-				}
-				average=average/noCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,noCd,1);
 				break;
 			
 			case "Heian Shodan":
 				shodanCd.add(totaltime);
-				double average;
-				for (int i=0; i<shodanCd.size();i++){
-					average+=shodanCd.get(i);
-				}
-				average=average/shodanCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,shodanCd,1);
 				break;
 				
 			case "Heian Nidan":
 				nidanCd.add(totaltime);
-				double average;
-				for (int i=0; i<nidanCd.size();i++){
-					average+=nidanCd.get(i);
-				}
-				average=average/nidanCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,nidanCd,1);
 				break;				
 				
 			case "Heian Sandan":
 				sandanCd.add(totaltime);
-				double average;
-				for (int i=0; i<sandanCd.size();i++){
-					average+=sandanCd.get(i);
-				}
-				average=average/sandanCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,sandanCd,1);
 				break;	
 				
 			case "Unsu":
 				unsuCd.add(totaltime);
-				double average;
-				for (int i=0; i<unsuCd.size();i++){
-					average+=unsuCd.get(i);
-				}
-				average=average/unsuCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,unsuCd,1);
 				break;	
 
 			case "Meikyo":
 				meikyoCd.add(totaltime);
-				double average;
-				for (int i=0; i<meikyoCd.size();i++){
-					average+=meikyoCd.get(i);
-				}
-				average=average/meikyoCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,meikyoCd,1);
 				break;	
 
 			case "Sochin":
 				sochinCd.add(totaltime);
-				double average;
-				for (int i=0; i<sochinCd.size();i++){
-					average+=sochinCd.get(i);
-				}
-				average=average/sochinCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,sochinCd,1);
 				break;	
 
 			case "Wankan":
 				wankanCd.add(totaltime);
-				double average;
-				for (int i=0; i<wankanCd.size();i++){
-					average+=wankanCd.get(i);
-				}
-				average=average/wankanCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,wankanCd,1);
 				break;	
 			
 			case "Bassai-Dai":
 				bassaiDaiCd.add(totaltime);
-				double average;
-				for (int i=0; i<bassaiDaiCd.size();i++){
-					average+=bassaiDaiCd.get(i);
-				}
-				average=average/bassaiDaiCd.size();
-				clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds. Kata: "+oldkata+". Average: "+average+"\n","FFFFFF");
+				medEndPrinter(totaltime,bassaiDaiCd,1);
 				break;
 
 		}
 	
 	
-	//clientGUI.printText("general","Time since last meditation: "+totaltime+" seconds.\n","FFFFFF");
 	if(setReport){
 		clientGUI.doCommand("@p report Can meditate again, time since last meditation: "+totaltime+" seconds.");
 	}
 	oldkata="no";
 }
 
-
+void medEndPrinter(double totaltime,ArrayList k,int end){
+	//Prints the meditation times and cooldowns. 
+	double average;
+	for (int i=0; i<k.size();i++){
+		average+=k.get(i);
+	}
+	if(end==0){
+		clientGUI.printText("general","Meditime: "+Math.round(totaltime*10)/10.0+" seconds. Kata: "+kata+" kata. Average: "+Math.round(average/k.size()*10)/10.0+" seconds.\n","FFFFFF");
+	}else{
+		clientGUI.printText("general","Time since last meditation: "+Math.round(totaltime*10)/10.0+" seconds. Kata: "+oldkata+" kata. Average: "+Math.round(average/k.size()*10)/10.0+"\n","FFFFFF");
+	}
+}
 
 void printStats(){
+	//Prints the stats with the '$medi r' -command
 	clientGUI.printText("general","Meditation stats:\n","FFFFFF");
-	int total=0;
-	if(no.size()>0){
-		total+=no.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<no.size();i++){
-			average+=no.get(i);
-		}
-		for (int i=0; i<noCd.size();i++){
-			averageCd+=noCd.get(i);
-		}
-		average=average/no.size();
-		averageCd=averageCd/noCd.size();
-		clientGUI.printText("general","No kata: "+no.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(shodan.size()>0){
-		total+=shodan.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<shodan.size();i++){
-			average+=shodan.get(i);
-		}
-		for (int i=0; i<shodanCd.size();i++){
-			averageCd+=shodanCd.get(i);
-		}
-		average=average/shodan.size();
-		averageCd=averageCd/shodanCd.size();
-		clientGUI.printText("general","Heian Shodan kata: "+shodan.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(nidan.size()>0){
-		total+=nidan.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<nidan.size();i++){
-			average+=nidan.get(i);
-		}
-		for (int i=0; i<nidanCd.size();i++){
-			averageCd+=nidanCd.get(i);
-		}
-		average=average/nidan.size();
-		averageCd=averageCd/nidanCd.size();
-		clientGUI.printText("general","Heian Nidan kata: "+nidan.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(sandan.size()>0){
-		total+=sandan.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<sandan.size();i++){
-			average+=sandan.get(i);
-		}
-		for (int i=0; i<sandanCd.size();i++){
-			averageCd+=sandanCd.get(i);
-		}
-		average=average/sandan.size();
-		averageCd=averageCd/sandanCd.size();
-		clientGUI.printText("general","Heian Sandan kata: "+sandan.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(unsu.size()>0){
-		total+=unsu.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<unsu.size();i++){
-			average+=unsu.get(i);
-		}
-		for (int i=0; i<unsuCd.size();i++){
-			averageCd+=unsuCd.get(i);
-		}
-		average=average/unsu.size();
-		averageCd=averageCd/unsuCd.size();
-		clientGUI.printText("general","Unsu kata: "+unsu.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(meikyo.size()>0){
-		total+=meikyo.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<meikyo.size();i++){
-			average+=meikyo.get(i);
-		}
-		for (int i=0; i<meikyoCd.size();i++){
-			averageCd+=meikyoCd.get(i);
-		}
-		average=average/meikyo.size();
-		averageCd=averageCd/meikyoCd.size();
-		clientGUI.printText("general","Meikyo kata: "+meikyo.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(sochin.size()>0){
-		total+=sochin.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<sochin.size();i++){
-			average+=sochin.get(i);
-		}
-		for (int i=0; i<sochinCd.size();i++){
-			averageCd+=sochinCd.get(i);
-		}
-		average=average/sochin.size();
-		averageCd=averageCd/sochinCd.size();
-		clientGUI.printText("general","Sochin kata: "+sochin.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(wankan.size()>0){
-		total+=wankan.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<wankan.size();i++){
-			average+=wankan.get(i);
-		}
-		for (int i=0; i<wankanCd.size();i++){
-			averageCd+=wankanCd.get(i);
-		}
-		average=average/wankan.size();
-		averageCd=averageCd/wankanCd.size();
-		clientGUI.printText("general","Wankan kata: "+wankan.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
-	
-	if(bassaiDai.size()>0){
-		total+=bassaiDai.size();
-		double average;
-		double averageCd;
-		for (int i=0; i<bassaiDai.size();i++){
-			average+=bassaiDai.get(i);
-		}
-		for (int i=0; i<bassaiDaiCd.size();i++){
-			averageCd+=bassaiDaiCd.get(i);
-		}
-		average=average/bassaiDai.size();
-		averageCd=averageCd/bassaiDaiCd.size();
-		clientGUI.printText("general","Bassai-Dai kata: "+bassaiDai.size()+" meditations, average length "+average+" seconds, average cooldown "+averageCd+" seconds.\n","FFFFFF");
-	}
+	reportPrinter("No kata",no,noCd);
+	reportPrinter("Heian Shodan kata",shodan,shodanCd);
+	reportPrinter("Heian Nidan kata",nidan,nidanCd);
+	reportPrinter("Heian Sandan kata",sandan,sandanCd);
+	reportPrinter("Unsu kata",unsu,unsuCd);
+	reportPrinter("Meikyo kata",meikyo,meikyoCd);
+	reportPrinter("Sochin kata",sochin,sochinCd);
+	reportPrinter("Wankan kata",wankan,wankanCd);
+	reportPrinter("Bassai-Dai kata",bassaiDai,bassaiDaiCd);
 	
 	if(total>0){
 		clientGUI.printText("general","Total meditations: "+total+".\n","FFFFFF");
+		total=0;
+	}
+}
+
+void reportPrinter(String kataname,ArrayList k,ArrayList kCd){
+	//Prints the stats
+	if(k.size()>0){
+		total+=k.size();
+		double average;
+		double averageCd;
+		for (int i=0; i<k.size();i++){
+			average+=k.get(i);
+		}
+		for (int i=0; i<kCd.size();i++){
+			averageCd+=kCd.get(i);
+		}
+		average=average/k.size();
+		averageCd=averageCd/kCd.size();
+		clientGUI.printText("general",""+kataname+": "+k.size()+" meditations, average length "+Math.round(average*10)/10.0+" seconds, average cooldown "+Math.round(averageCd*10)/10.0+" seconds.\n","FFFFFF");
+	
 	}
 }
 
